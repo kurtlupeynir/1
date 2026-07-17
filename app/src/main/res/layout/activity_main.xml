@@ -4,16 +4,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#000000"
-    android:padding="16dp">
+    android:background="#0a0e27"
+    android:padding="0dp">
 
-    <!-- Üst Bar -->
+    <!-- Üst Bar (Bluetooth ve Saat) -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingBottom="10dp">
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:background="#0f1535">
 
         <TextView
             android:id="@+id/txtBtStatus"
@@ -21,7 +23,7 @@
             android:layout_height="wrap_content"
             android:text="🔴 Bağlanıyor..."
             android:textColor="#FF4444"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:textStyle="bold"/>
 
         <View
@@ -30,77 +32,164 @@
             android:layout_weight="1"/>
 
         <TextView
+            android:id="@+id/txtClock"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="UNO Dashboard"
-            android:textColor="#666666"
-            android:textSize="14sp"/>
+            android:text="22:16"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:fontFamily="monospace"/>
 
     </LinearLayout>
-
 
     <!-- Ana Alan -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:padding="16dp">
 
-        <!-- Sol Göstergeler -->
+        <!-- Sol Göstergeler (Yakıt, LPG, Sıcaklık) -->
         <LinearLayout
-            android:layout_width="220dp"
+            android:layout_width="240dp"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:gravity="center_vertical">
+            android:gravity="bottom"
+            android:paddingBottom="40dp">
 
-            <!-- Motor -->
-            <ImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/ic_temp"/>
+            <!-- Motor Sıcaklığı -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="24dp">
 
-            <ProgressBar
-                android:id="@+id/barTemp"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="180dp"
-                android:layout_height="12dp"
-                android:max="100"
-                android:progress="70"
-                android:progressDrawable="@drawable/progress_temp"/>
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_temp"
+                    android:contentDescription="Sıcaklık"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="SICAKLıK"
+                        android:textColor="#999999"
+                        android:textSize="11sp"
+                        android:textStyle="bold"/>
+
+                    <ProgressBar
+                        android:id="@+id/barTemp"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="8dp"
+                        android:max="100"
+                        android:progress="35"
+                        android:progressDrawable="@drawable/progress_temp"
+                        android:layout_marginTop="4dp"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
 
             <!-- LPG -->
-            <ImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/ic_lpg"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="24dp">
 
-            <ProgressBar
-                android:id="@+id/barLpg"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="180dp"
-                android:layout_height="12dp"
-                android:max="100"
-                android:progress="60"
-                android:progressDrawable="@drawable/progress_lpg"/>
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_lpg"
+                    android:contentDescription="LPG"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="LPG"
+                        android:textColor="#999999"
+                        android:textSize="11sp"
+                        android:textStyle="bold"/>
+
+                    <ProgressBar
+                        android:id="@+id/barLpg"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="8dp"
+                        android:max="100"
+                        android:progress="60"
+                        android:progressDrawable="@drawable/progress_lpg"
+                        android:layout_marginTop="4dp"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
 
             <!-- Benzin -->
-            <ImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/ic_fuel"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-            <ProgressBar
-                android:id="@+id/barFuel"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="180dp"
-                android:layout_height="12dp"
-                android:max="100"
-                android:progressDrawable="@drawable/progress_fuel"/>
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_fuel"
+                    android:contentDescription="Yakıt"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="YAKIT"
+                        android:textColor="#999999"
+                        android:textSize="11sp"
+                        android:textStyle="bold"/>
+
+                    <ProgressBar
+                        android:id="@+id/barFuel"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="8dp"
+                        android:max="100"
+                        android:progress="45"
+                        android:progressDrawable="@drawable/progress_fuel"
+                        android:layout_marginTop="4dp"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
 
         </LinearLayout>
 
-
-        <!-- Sağ Taraf -->
+        <!-- Merkez - Hız Göstergesi -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -113,84 +202,184 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0"
-                android:textColor="#FFFFFF"
-                android:textSize="240sp"
-                android:fontFamily="monospace"/>
+                android:textColor="#00FF88"
+                android:textSize="200sp"
+                android:fontFamily="monospace"
+                android:textStyle="bold"
+                android:shadowColor="#000000"
+                android:shadowDx="2"
+                android:shadowDy="2"
+                android:shadowRadius="4"/>
 
             <TextView
-                android:id="@+id/txtOdo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0.0 km"
-                android:textColor="#FFFFFF"
-                android:textSize="28sp"
-                android:textStyle="bold"
-                android:fontFamily="monospace"/>
+                android:text="km/h"
+                android:textColor="#00CC66"
+                android:textSize="24sp"
+                android:fontFamily="monospace"
+                android:layout_marginTop="-20dp"/>
+
+        </LinearLayout>
+
+        <!-- Sağ Taraf - RPM ve Km -->
+        <LinearLayout
+            android:layout_width="200dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center|end"
+            android:paddingEnd="10dp">
+
+            <!-- RPM -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="end"
+                android:layout_marginBottom="40dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="RPM"
+                    android:textColor="#999999"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
+
+                <TextView
+                    android:id="@+id/txtRpm"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="#FF6B35"
+                    android:textSize="48sp"
+                    android:fontFamily="monospace"
+                    android:textStyle="bold"/>
+
+            </LinearLayout>
+
+            <!-- KM -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="end">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TOPLAM KM"
+                    android:textColor="#999999"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
+
+                <TextView
+                    android:id="@+id/txtOdo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="259457.0"
+                    android:textColor="#FFFFFF"
+                    android:textSize="24sp"
+                    android:fontFamily="monospace"
+                    android:textStyle="bold"/>
+
+            </LinearLayout>
 
         </LinearLayout>
 
     </LinearLayout>
 
-
-    <!-- Çizgi -->
+    <!-- Çizgi Ayırıcı -->
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#333333"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"/>
+        android:background="#1a2050"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"/>
 
-
-    <!-- Alt Satır -->
+    <!-- Alt Satır - Trip Sayaçları -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="80dp"
         android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp">
 
         <!-- Trip A -->
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="TRIP A"
-            android:textColor="#FFFFFF"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:fontFamily="monospace"/>
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="start">
 
-        <TextView
-            android:id="@+id/txtTripA"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="0.0 km"
-            android:textColor="#FFFFFF"
-            android:textSize="28sp"
-            android:layout_marginStart="15dp"
-            android:fontFamily="monospace"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TRIP A"
+                android:textColor="#999999"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="4dp"/>
 
+            <TextView
+                android:id="@+id/txtTripA"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0.0 km"
+                android:textColor="#FFFFFF"
+                android:textSize="32sp"
+                android:fontFamily="monospace"
+                android:textStyle="bold"/>
+
+        </LinearLayout>
+
+        <!-- Ayırıcı -->
         <View
-            android:layout_width="40dp"
-            android:layout_height="1dp"/>
+            android:layout_width="1dp"
+            android:layout_height="50dp"
+            android:background="#1a2050"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"/>
 
         <!-- Trip B -->
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="TRIP B"
-            android:textColor="#FFFFFF"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:fontFamily="monospace"/>
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="start">
 
-        <TextView
-            android:id="@+id/txtTripB"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="0.0 km"
-            android:textColor="#FFFFFF"
-            android:textSize="28sp"
-            android:layout_marginStart="15dp"
-            android:fontFamily="monospace"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TRIP B"
+                android:textColor="#999999"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:id="@+id/txtTripB"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0.0 km"
+                android:textColor="#FFFFFF"
+                android:textSize="32sp"
+                android:fontFamily="monospace"
+                android:textStyle="bold"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
 
     </LinearLayout>
 
