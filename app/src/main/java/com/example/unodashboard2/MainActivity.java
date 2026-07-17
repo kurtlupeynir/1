@@ -8,7 +8,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import android.widget.ProgressBar;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
@@ -16,7 +20,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "Dashboard";
 
     // UI Elemanları
-    private TextView txtBtStatus, txtSpeed, txtOdo, txtTripA, txtTripB;
+    private TextView txtBtStatus, txtSpeed, txtOdo, txtTripA, txtTripB, txtRpm, txtClock;
+    private ProgressBar barTemp, barLpg, barFuel;
 
     // Bluetooth
     private BluetoothSocket btSocket;
@@ -31,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     // Thread'ler
     private Thread readerThread;
     private Thread monitorThread;
+    private Thread clockThread;
     private boolean shouldRun = true;
 
     // Veri değerleri
@@ -40,6 +46,12 @@ public class MainActivity extends AppCompatActivity {
     private float previousArduinoKm = 0f;
     private boolean firstPacket = true;
     private static final float START_ODO = 259457.0f;
+    
+    // RPM ve diğer sensör değerleri
+    private int currentRpm = 0;
+    private float currentTemp = 0f;
+    private float currentLpg = 0f;
+    private float currentFuel = 0f;
 
     // SharedPreferences
     private SharedPreferences prefs;
@@ -51,12 +63,46 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initializeUI();
+        loadPreferences();
+        updateUI();
+        
+        connectBluetooth();
+        startMonitorThread();
+        startClockThread();
+    }
+
+    private void initializeUI() {
         txtBtStatus = findViewById(R.id.txtBtStatus);
         txtSpeed = findViewById(R.id.txtSpeed);
         txtOdo = findViewById(R.id.txtOdo);
         txtTripA = findViewById(R.id.txtTripA);
         txtTripB = findViewById(R.id.txtTripB);
+        txtRpm = findViewById(R.id.txtRpm);
+        txtClock = findViewById(R.id.txtClock);
+        
+        barTemp = findViewById(R.id.barTemp);
+        barLpg = findViewById(R.id.barLpg);
+        barFuel = findViewById(R.id.barFuel);
 
+        // Trip A tıklaması
+        txtTripA.setOnClickListener(v -> {
+            currentTripA = 0f;
+            txtTripA.setText("0.0 km");
+            saveTripValue("TripA", 0f);
+            Log.d(TAG, "Trip A sıfırlandı");
+        });
+
+        // Trip B tıklaması
+        txtTripB.setOnClickListener(v -> {
+            currentTripB = 0f;
+            txtTripB.setText("0.0 km");
+            saveTripValue("TripB", 0f);
+            Log.d(TAG, "Trip B sıfırlandı");
+        });
+    }
+
+    private void loadPreferences() {
         prefs = getSharedPreferences("TripData", MODE_PRIVATE);
 
         currentTripA = prefs.getFloat("TripA", 0f);
@@ -65,39 +111,32 @@ public class MainActivity extends AppCompatActivity {
         previousArduinoKm = prefs.getFloat("PreviousArduinoKm", 0f);
 
         Log.d(TAG, "Başlangıç - TripC: " + currentTripC + ", TripA: " + currentTripA + ", TripB: " + currentTripB);
-        Log.d(TAG, "Başlangıç - previousArduinoKm: " + previousArduinoKm);
+    }
 
-        txtTripA.setText(String.format("%.1f", currentTripA));
-        txtTripB.setText(String.format("%.1f", currentTripB));
-        txtOdo.setText(String.format("%.1f km", START_ODO + currentTripC));
+    private void updateUI() {
+        txtTripA.setText(String.format("%.1f km", currentTripA));
+        txtTripB.setText(String.format("%.1f km", currentTripB));
+        txtOdo.setText(String.format("%.1f", START_ODO + currentTripC));
         txtSpeed.setText("0");
-
-        txtTripA.setOnClickListener(v -> {
-            currentTripA = 0f;
-            txtTripA.setText("0.0");
-            saveTripValue("TripA", 0f);
-            Log.d(TAG, "Trip A sıfırlandı");
-        });
-
-        txtTripB.setOnClickListener(v -> {
-            currentTripB = 0f;
-            txtTripB.setText("0.0");
-            saveTripValue("TripB", 0f);
-            Log.d(TAG, "Trip B sıfırlandı");
-        });
-
-        connectBluetooth();
-        startMonitorThread();
+        txtRpm.setText("0");
     }
 
-    private void saveTripValue(String key, float value) {
-        prefs.edit().putFloat(key, value).apply();
-    }
-
-    // ODO artık saklanmıyor. TripC saklanıyor.
-
-    private void savePreviousArduinoKm(float value) {
-        prefs.edit().putFloat("PreviousArduinoKm", value).apply();
+    private void startClockThread() {
+        clockThread = new Thread(() -> {
+            while (shouldRun) {
+                try {
+                    runOnUiThread(() -> {
+                        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                        String timeStr = sdf.format(new Date());
+                        txtClock.setText(timeStr);
+                    });
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+        });
+        clockThread.start();
     }
 
     private void startMonitorThread() {
@@ -239,74 +278,64 @@ public class MainActivity extends AppCompatActivity {
             String packet = bufferData.substring(start + 1, end);
             String[] values = packet.split(",");
 
-            if (values.length == 2) {
+            if (values.length >= 2) {
                 try {
                     String speedStr = values[0];
                     float newArduinoKm = Float.parseFloat(values[1]);
+                    
+                    // RPM değeri varsa al
+                    int rpm = values.length > 2 ? Integer.parseInt(values[2]) : 0;
+                    
+                    // Sıcaklık, LPG, Yakıt değerleri
+                    float temp = values.length > 3 ? Float.parseFloat(values[3]) : 0;
+                    float lpg = values.length > 4 ? Float.parseFloat(values[4]) : 0;
+                    float fuel = values.length > 5 ? Float.parseFloat(values[5]) : 0;
 
                     Log.d(TAG, "=========================================");
-                    Log.d(TAG, "📦 Gelen veri: <" + speedStr + "," + newArduinoKm + ">");
-                    Log.d(TAG, "📊 Mevcut durum:");
-                    Log.d(TAG, "   TripA: " + currentTripA);
-                    Log.d(TAG, "   TripB: " + currentTripB);
-                    Log.d(TAG, "   TripC: " + currentTripC);
-                    Log.d(TAG, "   previousArduinoKm: " + previousArduinoKm);
-                    Log.d(TAG, "   firstPacket: " + firstPacket);
+                    Log.d(TAG, "📦 Gelen veri: <" + speedStr + "," + newArduinoKm + "," + rpm + ">");
 
                     if (firstPacket) {
-                        // İlk paket - sadece değerleri kaydet, ekleme yapma
                         previousArduinoKm = newArduinoKm;
                         savePreviousArduinoKm(previousArduinoKm);
                         firstPacket = false;
-                        Log.d(TAG, "🔄 İLK PAKET - Sadece kaydedildi, ekleme yapılmadı");
-                        Log.d(TAG, "   previousArduinoKm = " + previousArduinoKm);
+                        Log.d(TAG, "🔄 İLK PAKET - Sadece kaydedildi");
                     } else {
-                        // Normal işlem
                         float distance = newArduinoKm - previousArduinoKm;
-                        Log.d(TAG, "📏 Hesaplanan mesafe: " + distance + " km");
 
                         if (distance > 0 && distance < 10.0f) {
-                           // Trip A'ya ekle
-                            float oldTripA = currentTripA;
                             currentTripA += distance;
-                            Log.d(TAG, "✅ TripA: " + oldTripA + " + " + distance + " = " + currentTripA);
-
-                            // Trip B'ye ekle
-                            float oldTripB = currentTripB;
                             currentTripB += distance;
-                            Log.d(TAG, "✅ TripB: " + oldTripB + " + " + distance + " = " + currentTripB);
-
-                            // TripC'ye ekle
-                            float oldTripC = currentTripC;
                             currentTripC += distance;
-                            Log.d(TAG, "✅ TripC: " + oldTripC + " + " + distance + " = " + currentTripC);
 
-                            // Kaydet
                             saveTripValue("TripA", currentTripA);
                             saveTripValue("TripB", currentTripB);
                             saveTripValue("TripC", currentTripC);
 
-                            // UI'ı güncelle
                             runOnUiThread(() -> {
-                                txtOdo.setText(String.format("%.1f km", START_ODO + currentTripC));
-                                txtTripA.setText(String.format("%.1f", currentTripA));
-                                txtTripB.setText(String.format("%.1f", currentTripB));
+                                txtOdo.setText(String.format("%.1f", START_ODO + currentTripC));
+                                txtTripA.setText(String.format("%.1f km", currentTripA));
+                                txtTripB.setText(String.format("%.1f km", currentTripB));
                             });
-                        } else {
-                            Log.d(TAG, "⚠️ Mesafe çok büyük veya negatif! distance: " + distance);
                         }
 
-                        // Önceki değeri güncelle
                         previousArduinoKm = newArduinoKm;
                         savePreviousArduinoKm(previousArduinoKm);
-                        Log.d(TAG, "📝 previousArduinoKm güncellendi: " + previousArduinoKm);
                     }
 
-                    // Hızı güncelle
+                    // UI güncelle
+                    final int finalRpm = rpm;
+                    final float finalTemp = temp;
+                    final float finalLpg = lpg;
+                    final float finalFuel = fuel;
+                    
                     runOnUiThread(() -> {
                         txtSpeed.setText(speedStr);
+                        txtRpm.setText(String.valueOf(finalRpm));
                         txtBtStatus.setText("🟢 Veri alınıyor");
                         txtBtStatus.setTextColor(0xFF00FF00);
+                        
+                        // Progress bar'ları güncelle
+                        updateGauges(finalTemp, finalLpg, finalFuel);
                     });
 
                     Log.d(TAG, "=========================================");
@@ -322,6 +351,40 @@ public class MainActivity extends AppCompatActivity {
                 bufferData = bufferData.substring(bufferData.length() - 1000);
             }
         }
+    }
+
+    private void updateGauges(float temp, float lpg, float fuel) {
+        // Sıcaklık (0-100°C)
+        int tempProgress = (int) ((temp / 120) * 100);
+        barTemp.setProgress(Math.min(tempProgress, 100));
+        updateGaugeColor(barTemp, tempProgress);
+        
+        // LPG (0-100%)
+        int lpgProgress = (int) lpg;
+        barLpg.setProgress(Math.min(lpgProgress, 100));
+        
+        // Yakıt (0-100%)
+        int fuelProgress = (int) fuel;
+        barFuel.setProgress(Math.min(fuelProgress, 100));
+    }
+
+    private void updateGaugeColor(ProgressBar bar, int progress) {
+        // Sıcaklık uyarı sistemi
+        if (progress > 80) {
+            // Sıcak - Kırmızı
+            bar.setProgressDrawable(getResources().getDrawable(R.drawable.progress_temp_warning));
+        } else if (progress > 50) {
+            // Normal - Yeşil
+            bar.setProgressDrawable(getResources().getDrawable(R.drawable.progress_temp));
+        }
+    }
+
+    private void saveTripValue(String key, float value) {
+        prefs.edit().putFloat(key, value).apply();
+    }
+
+    private void savePreviousArduinoKm(float value) {
+        prefs.edit().putFloat("PreviousArduinoKm", value).apply();
     }
 
     private void resetConnection() {
@@ -349,6 +412,9 @@ public class MainActivity extends AppCompatActivity {
         shouldRun = false;
         if (monitorThread != null) {
             monitorThread.interrupt();
+        }
+        if (clockThread != null) {
+            clockThread.interrupt();
         }
         resetConnection();
     }
