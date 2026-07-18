@@ -10,7 +10,7 @@
     <!-- Üst Bar (Bluetooth ve Saat) -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="70dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingStart="20dp"
@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:text="🔴 Bağlanıyor..."
             android:textColor="#FF4444"
-            android:textSize="16sp"
+            android:textSize="14sp"
             android:textStyle="bold"/>
 
         <View
@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:text="22:16"
             android:textColor="#FFFFFF"
-            android:textSize="20sp"
+            android:textSize="48sp"
             android:textStyle="bold"
             android:fontFamily="monospace"/>
 
@@ -53,11 +53,11 @@
 
         <!-- Sol Göstergeler (Yakıt, LPG, Sıcaklık) -->
         <LinearLayout
-            android:layout_width="240dp"
+            android:layout_width="220dp"
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:gravity="bottom"
-            android:paddingBottom="40dp">
+            android:paddingBottom="30dp">
 
             <!-- Motor Sıcaklığı -->
             <LinearLayout
@@ -65,7 +65,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="24dp">
+                android:layout_marginBottom="28dp">
 
                 <ImageView
                     android:layout_width="32dp"
@@ -85,7 +85,7 @@
                         android:layout_height="wrap_content"
                         android:text="SICAKLıK"
                         android:textColor="#999999"
-                        android:textSize="11sp"
+                        android:textSize="10sp"
                         android:textStyle="bold"/>
 
                     <ProgressBar
@@ -108,7 +108,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="24dp">
+                android:layout_marginBottom="28dp">
 
                 <ImageView
                     android:layout_width="32dp"
@@ -128,7 +128,7 @@
                         android:layout_height="wrap_content"
                         android:text="LPG"
                         android:textColor="#999999"
-                        android:textSize="11sp"
+                        android:textSize="10sp"
                         android:textStyle="bold"/>
 
                     <ProgressBar
@@ -170,7 +170,7 @@
                         android:layout_height="wrap_content"
                         android:text="YAKIT"
                         android:textColor="#999999"
-                        android:textSize="11sp"
+                        android:textSize="10sp"
                         android:textStyle="bold"/>
 
                     <ProgressBar
@@ -203,28 +203,29 @@
                 android:layout_height="wrap_content"
                 android:text="0"
                 android:textColor="#00FF88"
-                android:textSize="200sp"
+                android:textSize="180sp"
                 android:fontFamily="monospace"
                 android:textStyle="bold"
                 android:shadowColor="#000000"
                 android:shadowDx="2"
                 android:shadowDy="2"
-                android:shadowRadius="4"/>
+                android:shadowRadius="4"
+                android:lineSpacingMultiplier="0.8"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="km/h"
                 android:textColor="#00CC66"
-                android:textSize="24sp"
+                android:textSize="20sp"
                 android:fontFamily="monospace"
-                android:layout_marginTop="-20dp"/>
+                android:layout_marginTop="-15dp"/>
 
         </LinearLayout>
 
-        <!-- Sağ Taraf - RPM ve Km -->
+        <!-- Sağ Taraf - RPM -->
         <LinearLayout
-            android:layout_width="200dp"
+            android:layout_width="180dp"
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:gravity="center|end"
@@ -235,8 +236,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:gravity="end"
-                android:layout_marginBottom="40dp">
+                android:gravity="end">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -259,34 +259,6 @@
 
             </LinearLayout>
 
-            <!-- KM -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="end">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="TOPLAM KM"
-                    android:textColor="#999999"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="4dp"/>
-
-                <TextView
-                    android:id="@+id/txtOdo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="259457.0"
-                    android:textColor="#FFFFFF"
-                    android:textSize="24sp"
-                    android:fontFamily="monospace"
-                    android:textStyle="bold"/>
-
-            </LinearLayout>
-
         </LinearLayout>
 
     </LinearLayout>
@@ -299,16 +271,16 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"/>
 
-    <!-- Alt Satır - Trip Sayaçları -->
+    <!-- Alt Satır - Trip Sayaçları ve Toplam KM -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="85dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp">
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp">
 
         <!-- Trip A -->
         <LinearLayout
@@ -316,14 +288,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:gravity="start">
+            android:gravity="center">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="TRIP A"
                 android:textColor="#999999"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="4dp"/>
 
@@ -331,21 +303,30 @@
                 android:id="@+id/txtTripA"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0.0 km"
+                android:text="0.0"
                 android:textColor="#FFFFFF"
-                android:textSize="32sp"
+                android:textSize="28sp"
                 android:fontFamily="monospace"
                 android:textStyle="bold"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="km"
+                android:textColor="#CCCCCC"
+                android:textSize="10sp"
+                android:fontFamily="monospace"
+                android:layout_marginTop="-2dp"/>
 
         </LinearLayout>
 
         <!-- Ayırıcı -->
         <View
             android:layout_width="1dp"
-            android:layout_height="50dp"
+            android:layout_height="55dp"
             android:background="#1a2050"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"/>
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"/>
 
         <!-- Trip B -->
         <LinearLayout
@@ -353,14 +334,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:gravity="start">
+            android:gravity="center">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="TRIP B"
                 android:textColor="#999999"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="4dp"/>
 
@@ -368,18 +349,68 @@
                 android:id="@+id/txtTripB"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0.0 km"
+                android:text="0.0"
                 android:textColor="#FFFFFF"
-                android:textSize="32sp"
+                android:textSize="28sp"
                 android:fontFamily="monospace"
                 android:textStyle="bold"/>
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="km"
+                android:textColor="#CCCCCC"
+                android:textSize="10sp"
+                android:fontFamily="monospace"
+                android:layout_marginTop="-2dp"/>
+
         </LinearLayout>
 
+        <!-- Ayırıcı -->
         <View
+            android:layout_width="1dp"
+            android:layout_height="55dp"
+            android:background="#1a2050"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"/>
+
+        <!-- Toplam KM -->
+        <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TOPLAM"
+                android:textColor="#999999"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:id="@+id/txtOdo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="259457.0"
+                android:textColor="#FFFFFF"
+                android:textSize="28sp"
+                android:fontFamily="monospace"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="km"
+                android:textColor="#CCCCCC"
+                android:textSize="10sp"
+                android:fontFamily="monospace"
+                android:layout_marginTop="-2dp"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 
