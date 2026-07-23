@@ -12,16 +12,20 @@ SoftwareSerial BT(10, 11);
 #define INTERVAL 250
 #define SPEED_FILTER_ALPHA 0.6
 
-// Sıcaklık sensörü kalibrasyonu (Palio için)
-// Sensörün çıkışı 0-5V, sıcaklık -40°C ile 125°C arasında
-#define TEMP_OFFSET 40.0      // Offset değeri
-#define TEMP_SCALE 165.0      // Ölçek değeri (165 = 125 - (-40))
+// Sıcaklık sensörü kalibrasyonu (Fiat Uno 70S için)
+// 20°C = 2-4k Ω, 50°C = 600-900 Ω, 90°C = 100-300 Ω
+// Kalibrasyon değerleri (seri monitörden ölçülecek)
+#define TEMP_RAW_COLD 850      // Soğuk (20°C) analog değeri
+#define TEMP_RAW_HOT 150       // Sıcak (90°C) analog değeri
+#define TEMP_COLD 20.0         // Soğuk sıcaklık
+#define TEMP_HOT 90.0          // Sıcak sıcaklık
 
 volatile unsigned long pulseCount = 0;
 volatile unsigned long lastPulseTime = 0;
 
 unsigned long lastTime = 0;
 unsigned long lastBtSend = 0;
+unsigned long lastTempRead = 0;
 
 float speed = 0;
 float filteredSpeed = 0;
@@ -45,12 +49,15 @@ void setup()
     pinMode(TEMP_SENSOR_PIN, INPUT);
 
     totalKm = 0.0;
+    
+    Serial.println("=== UNO Dashboard Arduino Started ===");
 }
 
 void loop()
 {
     unsigned long currentTime = millis();
 
+    // Hız hesaplama (her 250ms)
     if (currentTime - lastTime >= INTERVAL)
     {
         noInterrupts();
@@ -86,27 +93,30 @@ void loop()
         lastTime = currentTime;
     }
 
-    // Sıcaklık oku (her 500ms)
-    if (millis() - lastBtSend >= 500)
+    // Sıcaklık oku (her 200ms - daha sık güncelle)
+    if (currentTime - lastTempRead >= 200)
     {
         temperature = readTemperature();
+        lastTempRead = currentTime;
     }
 
     // Android'e veri gönder (her 1000ms)
-    if (millis() - lastBtSend >= 1000)
+    if (currentTime - lastBtSend >= 1000)
     {
         int speedToSend = (int)speed;
+        int tempToSend = (int)temperature;
         
+        // Bluetooth'a gönder
         BT.print("<");
         BT.print(speedToSend);
         BT.print(",");
         BT.print(totalKm, 1);
         BT.print(",");
-        BT.print((int)temperature);
+        BT.print(tempToSend);
         BT.println(">");
 
-        // Debug
-        Serial.print("Hız: ");
+        // Debug - Serial Monitor'e yazdır
+        Serial.print(">>> Hız: ");
         Serial.print(speedToSend);
         Serial.print(" km/h | Km: ");
         Serial.print(totalKm, 1);
@@ -114,7 +124,7 @@ void loop()
         Serial.print(temperature, 1);
         Serial.println(" °C");
 
-        lastBtSend = millis();
+        lastBtSend = currentTime;
     }
 }
 
@@ -134,17 +144,17 @@ float readTemperature()
     // Analog değer oku (10 bit: 0-1023)
     int rawValue = analogRead(TEMP_SENSOR_PIN);
     
-    // 0-5V'a çevir
-    float voltage = rawValue * (5.0 / 1023.0);
+    // Kalibrasyon formülü (doğrusal interpolasyon)
+    // rawValue TEMP_RAW_COLD'da TEMP_COLD°C
+    // rawValue TEMP_RAW_HOT'da TEMP_HOT°C
     
-    // Sıcaklığa çevir (Palio sensörü için)
-    // Formül: Temp = (Voltage * 165 / 5) - 40
-    // Voltage 0V = -40°C, Voltage 5V = 125°C
-    float temp = (voltage * TEMP_SCALE / 5.0) - TEMP_OFFSET;
+    float temp = TEMP_COLD + (TEMP_HOT - TEMP_COLD) * 
+                 (TEMP_RAW_COLD - rawValue) / 
+                 (TEMP_RAW_COLD - TEMP_RAW_HOT);
     
-    // Geçerlilik kontrolü (-40°C ile 125°C arasında)
-    if (temp < -40.0) temp = -40.0;
-    if (temp > 125.0) temp = 125.0;
+    // Geçerlilik kontrolü (0°C ile 120°C arasında)
+    if (temp < 0.0) temp = 0.0;
+    if (temp > 120.0) temp = 120.0;
     
     return temp;
 }
